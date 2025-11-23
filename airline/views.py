@@ -8,7 +8,7 @@ import random
 import json
 
 
-def booking_view(request):
+def booking_create(request):
     if request.method == 'POST':
 
         # Get data from the form
@@ -62,7 +62,7 @@ def booking_view(request):
 
     return render(
         request,
-        'booking.html',
+        'booking_create.html',
         {
             'passengers': passengers,
             'flights': flights,
