@@ -1,3 +1,6 @@
-<h1>✅ Booking Confirmed!</h1>
-<p>The data has been saved to the database.</p>
-<a href="/">Book Another</a>
+{% extends 'base.html' %}
+{% block content %}
+  <h1>✅ Booking Confirmed!</h1>
+  <p>The data has been saved to the database.</p>
+  <a href="{% url 'airline:booking_view' %}">Book Another</a>
+{% endblock content %}

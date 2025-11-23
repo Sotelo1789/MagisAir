@@ -50,12 +50,19 @@
       .list-group-item:hover {
         background-color: #2d3748;
         color: white;
+        font-weight: bold;
       }
 
       .list-group-item:hover.active {
         background-color: #3697ff;
         color: #e8e8e8;
         font-weight: bold;
+      }
+
+      .list-group-item-action:focus {
+        z-index: 1;
+        color: var(--bs-list-group-action-hover-color);
+        text-decoration: none;
       }
 
       /* Content Area */
@@ -88,10 +95,15 @@
       <div class="border-end" id="sidebar-wrapper" style="margin-left: 0;">
         <div class="sidebar-heading">✈️ MAGIS AIR</div>
         <div class="list-group list-group-flush">
-          <a href="#" class="list-group-item list-group-item-action">📊 Dashboard</a>
-
-          <a href="#" class="list-group-item list-group-item-action">🗺️ Flight Routes</a>
-          <a href="#" class="list-group-item list-group-item-action">📅 Flight Schedules</a>
+          <a href="#" class="
+            list-group-item
+            {% if page == 'dashboard' %} active {% endif %}">📊 Dashboard</a>
+          <a href="#" class="
+            list-group-item
+            {% if page == 'route' %} active {% endif %}">🗺️ Flight Routes</a>
+          <a href="#" class="
+            list-group-item
+            {% if page == 'schedules' %} active {% endif %}">📅 Flight Schedules</a>
           <a
             href="{% url 'airline:passenger_list' %}"
             class="
@@ -102,7 +114,9 @@
             class="
               list-group-item
               {% if page == 'bookings' %} active {% endif %}">📖 Bookings</a>
-          <a href="#" class="list-group-item list-group-item-action">👮 Crew Assignments</a>
+          <a href="#" class="
+            list-group-item
+            {% if page == 'crew_assignements' %} active {% endif %}">👮 Crew Assignments</a>
         </div>
       </div>
 

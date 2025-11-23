@@ -1,5 +1,8 @@
-from django.shortcuts import render, redirect
+import json
 from .models import Passenger, Flight, Booking, ItineraryItem
+from django.views.decorators.http import require_POST
+from django.shortcuts import render, redirect
+from django.http import JsonResponse
 from django.utils import timezone
 from decimal import Decimal
 import random
@@ -39,7 +42,7 @@ def booking_view(request):
             cost=price
         )
 
-        return redirect('success_view')
+        return redirect('airline:success_view')
 
     # Fetch data to populate the dropdowns
     passengers = Passenger.objects.all()
@@ -80,3 +83,19 @@ def passenger_list_view(request):
             'page': 'passengers'
         }
     )
+
+
+@require_POST
+def get_flight_price(request):
+    body = json.loads(request.body)
+    selected_option = body.get('flight_no')
+
+    if not selected_option:
+        return JsonResponse({'error': 'Missing flight number'}, status=400)
+
+    flight = ItineraryItem.objects.filter(flight__flight_no=selected_option).first()
+
+    if not flight:
+        return JsonResponse({'error': 'Invalid flight number'}, status=404)
+
+    return JsonResponse({'message': f'{flight.cost}'})
