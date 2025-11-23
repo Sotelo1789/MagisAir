@@ -95,13 +95,13 @@
       <div class="border-end" id="sidebar-wrapper" style="margin-left: 0;">
         <div class="sidebar-heading">✈️ MAGIS AIR</div>
         <div class="list-group list-group-flush">
-          <a href="#" class="
+          <a href="{% url 'airline:temp' %}" class="
             list-group-item
             {% if page == 'dashboard' %} active {% endif %}">📊 Dashboard</a>
-          <a href="#" class="
+          <a href="{% url 'airline:temp' %}" class="
             list-group-item
             {% if page == 'route' %} active {% endif %}">🗺️ Flight Routes</a>
-          <a href="#" class="
+          <a href="{% url 'airline:temp' %}" class="
             list-group-item
             {% if page == 'schedules' %} active {% endif %}">📅 Flight Schedules</a>
           <a
@@ -110,11 +110,11 @@
               list-group-item
               {% if page == 'passengers' %} active {% endif %}">👥 Passengers</a>
           <a
-            href="{% url 'airline:booking_view' %}"
+            href="{% url 'airline:booking_list' %}"
             class="
               list-group-item
               {% if page == 'bookings' %} active {% endif %}">📖 Bookings</a>
-          <a href="#" class="
+          <a href="{% url 'airline:temp' %}" class="
             list-group-item
             {% if page == 'crew_assignements' %} active {% endif %}">👮 Crew Assignments</a>
         </div>

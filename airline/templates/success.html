@@ -1,6 +1,20 @@
 {% extends 'base.html' %}
 {% block content %}
-  <h1>✅ Booking Confirmed!</h1>
-  <p>The data has been saved to the database.</p>
-  <a href="{% url 'airline:booking_view' %}">Book Another</a>
+  <div class="row mt-4">
+    <div class="col-md-6 mx-auto">
+      <div class="card text-center">
+        <div class="card-body p-4">
+          <div class="mb-3">
+            <h1 class="display-6">✅ Booking Confirmed!</h1>
+          </div>
+          <p class="text-muted">Your booking was saved successfully to the database.</p>
+
+          <div class="d-flex justify-content-center gap-2 mt-4">
+            <a href="{% url 'airline:booking_view' %}" class="btn btn-primary btn-lg">+ Book Another</a>
+            <a href="{% url 'airline:booking_list' %}" class="btn btn-outline-secondary btn-lg">Back to Bookings</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock content %}

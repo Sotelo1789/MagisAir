@@ -1,11 +1,11 @@
-import json
 from .models import Passenger, Flight, Booking, ItineraryItem
 from django.views.decorators.http import require_POST
 from django.shortcuts import render, redirect
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from django.utils import timezone
 from decimal import Decimal
 import random
+import json
 
 
 def booking_view(request):
@@ -42,6 +42,8 @@ def booking_view(request):
             cost=price
         )
 
+        # mark the session so the success page can only be shown after a real booking
+        request.session['booking_created'] = True
         return redirect('airline:success_view')
 
     # Fetch data to populate the dropdowns
@@ -70,6 +72,10 @@ def booking_view(request):
 
 
 def success_view(request):
+    # Only show success page immediately after a booking was created.
+    if not request.session.pop('booking_created', False):
+        return redirect('airline:booking_list')
+
     return render(request, 'success.html')
 
 
@@ -81,6 +87,33 @@ def passenger_list_view(request):
         {
             'passengers': passengers,
             'page': 'passengers'
+        }
+    )
+
+
+def booking_list_view(request):
+    # List all bookings with related passenger and itinerary items
+    bookings = Booking.objects.select_related('passenger').all().order_by('date_booked', '-booking_id')
+
+    booking_rows = []
+    for b in bookings:
+        itinerary_items = ItineraryItem.objects.filter(booking=b).select_related('flight__route', 'flight__schedule')
+        flights = []
+        for it in itinerary_items:
+            f = it.flight
+            flights.append(f"{f.route.origin_city} ➝ {f.route.destination_city} | {f.schedule.date} @ {f.departure_time.strftime('%I:%M %p')}")
+
+        booking_rows.append({
+            'booking': b,
+            'flights': flights,
+        })
+
+    return render(
+        request,
+        'booking_list.html',
+        {
+            'bookings': booking_rows,
+            'page': 'bookings'
         }
     )
 
@@ -99,3 +132,7 @@ def get_flight_price(request):
         return JsonResponse({'error': 'Invalid flight number'}, status=404)
 
     return JsonResponse({'message': f'{flight.cost}'})
+
+
+def page_temp(request):
+    raise Http404('Temporarily Unavailable --- To Be Created')

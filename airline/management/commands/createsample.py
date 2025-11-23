@@ -3,7 +3,7 @@ from django.utils import timezone
 from airline.models import (AdditionalItem, Booking, BookingItem,
                             City, Flight, FlightRoute,
                             FlightSchedule, ItineraryItem, Passenger)
-from datetime import timedelta, date
+from datetime import timedelta, date, datetime
 
 
 class Command(BaseCommand):
@@ -26,7 +26,7 @@ class Command(BaseCommand):
 
         # Schedules
         s1 = FlightSchedule.objects.create(date=date.today())
-        s2 = FlightSchedule.objects.create(date=date.today())
+        s2 = FlightSchedule.objects.create(date=date.today()+timedelta(days=4))
 
         # Routes
         r1 = FlightRoute.objects.create(
@@ -34,17 +34,22 @@ class Command(BaseCommand):
         r2 = FlightRoute.objects.create(
             origin_city=ceb, destination_city=davao, duration=1.5, schedule=s2)
 
+        dep_time = datetime.combine(date=s1.date, time=timezone.now().time())
+        dep_time2 = datetime.combine(
+            date=s2.date,
+            time=(timezone.now()+timedelta(hours=3, minutes=30)).time())
+
         # Flights
         f1 = Flight.objects.create(
-            arrival_time=timezone.now()+timedelta(minutes=r1.duration),
-            departure_time=timezone.now()+timedelta(minutes=r1.duration),
+            departure_time=dep_time,
+            arrival_time=dep_time+timedelta(minutes=r1.duration),
             schedule=s1,
             route=r1
         )
 
         f2 = Flight.objects.create(
-            arrival_time=timezone.now()+timedelta(minutes=r2.duration),
-            departure_time=timezone.now()+timedelta(minutes=r2.duration),
+            departure_time=dep_time2,
+            arrival_time=dep_time2+timedelta(minutes=r2.duration),
             schedule=s2,
             route=r2
         )
