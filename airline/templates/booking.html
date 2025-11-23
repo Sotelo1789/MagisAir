@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mt-4">
+  <div class="col-md-8 mx-auto">
+    <div class="card">
+      <div class="card-header bg-white">
+        <h3 class="mt-2">Create New Booking</h3>
+        <p class="text-muted mb-0">Select a passenger and flight to generate a ticket.</p>
+      </div>
+      <div class="card-body p-4">
+
+        <form method="POST">
+          {% csrf_token %}
+
+          <!-- Passenger Selection -->
+          <div class="mb-4">
+            <label class="form-label fw-bold">Select Passenger</label>
+            <select name="passenger_id" class="form-select form-select-lg" required>
+              <option value="" disabled selected>-- Choose a Passenger --</option>
+              {% for p in passengers %}
+              <option value="{{ p.passenger_id }}">{{ p.last_name }}, {{ p.first_name }} (ID: {{ p.passenger_id }})
+              </option>
+              {% endfor %}
+            </select>
+            <div class="form-text">
+              Don't see the passenger?
+              <a href="/admin/airline/passenger/add/" target="_blank">Add a new passenger here.</a>
+            </div>
+          </div>
+
+          <!-- Flight Selection -->
+          <div class="mb-4">
+            <label class="form-label fw-bold">Select Flight</label>
+            <select name="flight_id" class="form-select form-select-lg" required>
+              <option value="" disabled selected>-- Choose a Flight --</option>
+              {% for f in flights %}
+              <option value="{{ f.flight_no }}">
+                {{ f.route.origin_city }} ➝ {{ f.route.destination_city }}
+                | {{ f.schedule.date }} @ {{ f.departure_time }}
+                | Php {{ f.price }} <!-- link to itinerary item -->
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Price Input -->
+          <div class="mb-4">
+            <label class="form-label fw-bold">Ticket Price ($)</label>
+            <div class="input-group">
+              <span class="input-group-text">$</span>
+              <input type="number" name="price" class="form-control form-control-lg" placeholder="0.00" step="0.01"
+                required>
+            </div>
+            
+            <div class="form-text">
+              Would you like to pre-order flight consumables?
+              <a href="/admin/airline/bookingitem/add/" target="_blank">Request an item here.</a>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary btn-lg">Confirm Booking</button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
