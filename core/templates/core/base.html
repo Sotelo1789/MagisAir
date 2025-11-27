@@ -48,15 +48,39 @@
         <!-- Sidebar -->
         <div class="border-end" id="sidebar-wrapper" style="margin-left: 0;">
             <div class="sidebar-heading">✈️ MAGIS AIR</div>
+            
             <div class="list-group list-group-flush">
-                <a href="{% url 'passenger_list' %}" class="list-group-item list-group-item-action">👥 Passengers</a>
+                <!-- Dashboard (Placeholder) -->
+                <a href="#" class="list-group-item list-group-item-action">
+                    📊 Dashboard
+                </a>
 
-                <a href="#" class="list-group-item list-group-item-action">📊 Dashboard</a>
-                <a href="#" class="list-group-item list-group-item-action">🗺️ Flight Routes</a>
-                <a href="#" class="list-group-item list-group-item-action">📅 Flight Schedules</a>
-                <a href="#" class="list-group-item list-group-item-action">👥 Passengers</a>
-                <a href="{% url 'booking_view' %}" class="list-group-item list-group-item-action active">📖 Bookings</a>
-                <a href="#" class="list-group-item list-group-item-action">👮 Crew Assignments</a>
+                <!-- Flight Routes (Placeholder) -->
+                <a href="#" class="list-group-item list-group-item-action">
+                    🗺️ Flight Routes
+                </a>
+
+                <!-- Flight Schedules (Placeholder) -->
+                <a href="#" class="list-group-item list-group-item-action">
+                    📅 Flight Schedules
+                </a>
+
+                <!-- Passengers Link: Lights up if URL is 'passenger_list' OR 'add_passenger' -->
+                <a href="{% url 'passenger_list' %}" 
+                   class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'passenger_list' or request.resolver_match.url_name == 'add_passenger' %}active{% endif %}">
+                    👥 Passengers
+                </a>
+
+                <!-- Bookings Link: Lights up if URL is 'booking_view' or 'success_view' -->
+                <a href="{% url 'booking_view' %}" 
+                   class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'booking_view' or request.resolver_match.url_name == 'success_view' %}active{% endif %}">
+                    📖 Bookings
+                </a>
+
+                <!-- Crew Assignments (Placeholder) -->
+                <a href="#" class="list-group-item list-group-item-action">
+                    👮 Crew Assignments
+                </a>
             </div>
         </div>
 

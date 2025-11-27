@@ -1,0 +1,11 @@
+# Django internals
+__pycache__/
+*.py[cod]
+db.sqlite3
+
+# Virtual Environment
+venv/
+.env
+
+# macOS junk
+.DS_Store

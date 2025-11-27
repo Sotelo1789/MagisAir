@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from .models import Passenger, Flight, Booking, ItineraryItem
 from django.utils import timezone
 import random
+from .forms import PassengerForm
 
 def booking_view(request):
     # 1. Handle Form Submission (POST request)
@@ -52,3 +53,21 @@ def success_view(request):
 def passenger_list_view(request):
     passengers = Passenger.objects.all()
     return render(request, 'core/passenger_list.html', {'passengers': passengers})
+
+
+
+def add_passenger_view(request):
+    if request.method == 'POST':
+        form = PassengerForm(request.POST)
+        if form.is_valid():
+            # Don't save to DB yet, we need to generate an ID
+            passenger = form.save(commit=False)
+            # Generate a random 5-digit ID
+            passenger.passenger_id = random.randint(10000, 99999)
+            passenger.save()
+            # Go back to the booking page so they can book the flight!
+            return redirect('booking_view')
+    else:
+        form = PassengerForm()
+
+    return render(request, 'core/add_passenger.html', {'form': form})
