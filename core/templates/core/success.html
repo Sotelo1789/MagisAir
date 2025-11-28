@@ -1,3 +1,36 @@
-<h1>✅ Booking Confirmed!</h1>
-<p>The data has been saved to the database.</p>
-<a href="/">Book Another</a>
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="row mt-5">
+    <div class="col-md-6 mx-auto text-center">
+        <div class="card shadow-sm border-0 mt-5">
+            <div class="card-body p-5">
+                <!-- Success Icon -->
+                <div class="mb-3">
+                    <span style="font-size: 5rem;">✅</span>
+                </div>
+                
+                <!-- Heading -->
+                <h2 class="fw-bold text-success mb-3">Success!</h2>
+                
+                <!-- Message -->
+                <p class="lead text-muted mb-4">
+                    The record has been successfully saved to the database.
+                </p>
+                
+                <!-- Action Buttons -->
+                <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary px-4 gap-3">
+                        📊 Go to Dashboard
+                    </a>
+                    
+                    <!-- Smart logic: If they came from booking, let them book again -->
+                    <a href="{% url 'booking_view' %}" class="btn btn-primary px-4">
+                        + Create Another Booking
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
