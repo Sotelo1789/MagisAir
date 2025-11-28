@@ -1,0 +1,45 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="row mt-5">
+    <div class="col-md-6 mx-auto">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">✈️ Schedule New Flight</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Select Date (Schedule)</label>
+                        {{ form.schedule_date }}
+                        <div class="form-text">Choose a date from existing schedules.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Select Route</label>
+                        {{ form.route }}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Departure Time</label>
+                            {{ form.departure_time }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Arrival Time</label>
+                            {{ form.arrival_time }}
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">Save Flight</button>
+                        <a href="{% url 'flight_schedule' %}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

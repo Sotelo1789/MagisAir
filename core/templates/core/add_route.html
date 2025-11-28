@@ -1,0 +1,45 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="row mt-5">
+    <div class="col-md-6 mx-auto">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">🗺️ Create New Route</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Origin City</label>
+                        {{ form.origin_city }}
+                    </div>
+
+                    <div class="alert alert-info py-2">
+                        Missing a city? <a href="{% url 'add_city' %}" class="alert-link">Add it here first</a>.
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Destination City</label>
+                        {{ form.destination_city }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Duration (Minutes)</label>
+                        {{ form.duration }}
+                        <div class="form-text">Example: 90 for 1 hour 30 mins</div>
+                    </div>
+
+                    
+
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">Save Route</button>
+                        <a href="{% url 'flight_routes' %}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

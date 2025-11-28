@@ -55,13 +55,21 @@
                     📊 Dashboard
                 </a>
 
-                <!-- Flight Routes (Placeholder) -->
-                <a href="#" class="list-group-item list-group-item-action">
+                <!-- Flight Routes Link -->
+                <a href="{% url 'flight_routes' %}" 
+                   class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'flight_routes' or request.resolver_match.url_name == 'add_route' %}active{% endif %}">
                     🗺️ Flight Routes
                 </a>
 
-                <!-- Flight Schedules (Placeholder) -->
-                <a href="#" class="list-group-item list-group-item-action">
+                <!-- Cities Link -->
+                <a href="{% url 'city_list' %}" 
+                   class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'city_list' or request.resolver_match.url_name == 'add_city' %}active{% endif %}">
+                    🏙️ Cities
+                </a>
+
+                <!-- Flight Schedules Link -->
+                <a href="{% url 'flight_schedule' %}" 
+                   class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'flight_schedule' %}active{% endif %}">
                     📅 Flight Schedules
                 </a>
 
