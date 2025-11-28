@@ -3,6 +3,7 @@ from .models import Passenger, Flight, Booking, ItineraryItem, FlightSchedule, F
 from django.utils import timezone
 import random
 from .forms import PassengerForm, FlightForm, FlightRouteForm, CityForm, CrewMemberForm, CrewAssignmentForm 
+from django.db.models import Sum
 
 def booking_view(request):
     # 1. Handle Form Submission (POST request)
@@ -184,3 +185,26 @@ def add_assignment_view(request):
     else:
         form = CrewAssignmentForm()
     return render(request, 'core/add_assignment.html', {'form': form})
+
+
+def dashboard_view(request):
+    # 1. Calculate Counts
+    total_passengers = Passenger.objects.count()
+    total_flights = Flight.objects.count()
+    total_bookings = Booking.objects.count()
+    
+    # 2. Calculate Total Revenue (Sum of all booking costs)
+    revenue_data = Booking.objects.aggregate(Sum('total_cost'))
+    total_revenue = revenue_data['total_cost__sum'] or 0 # Default to 0 if None
+
+    # 3. Get Recent Bookings (Last 5)
+    recent_bookings = Booking.objects.select_related('passenger').order_by('-booking_id')[:5]
+
+    context = {
+        'total_passengers': total_passengers,
+        'total_flights': total_flights,
+        'total_bookings': total_bookings,
+        'total_revenue': total_revenue,
+        'recent_bookings': recent_bookings,
+    }
+    return render(request, 'core/dashboard.html', context)

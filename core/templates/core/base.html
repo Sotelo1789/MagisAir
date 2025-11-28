@@ -50,8 +50,9 @@
             <div class="sidebar-heading">✈️ MAGIS AIR</div>
             
             <div class="list-group list-group-flush">
-                <!-- Dashboard (Placeholder) -->
-                <a href="#" class="list-group-item list-group-item-action">
+                <!-- Dashboard Link -->
+                <a href="{% url 'dashboard' %}" 
+                   class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
                     📊 Dashboard
                 </a>
 
