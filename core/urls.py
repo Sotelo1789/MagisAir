@@ -12,4 +12,8 @@ urlpatterns = [
     path('routes/add/', views.add_route_view, name='add_route'),  
     path('cities/', views.city_list_view, name='city_list'), 
     path('cities/add/', views.add_city_view, name='add_city'), 
+    path('crew/', views.crew_list_view, name='crew_list'),
+    path('crew/add/', views.add_crew_member_view, name='add_crew_member'),
+    path('assignments/', views.crew_assignment_view, name='crew_assignments'),
+    path('assignments/add/', views.add_assignment_view, name='add_assignment'),
 ]

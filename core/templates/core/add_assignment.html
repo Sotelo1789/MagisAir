@@ -1,0 +1,34 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="row mt-5">
+    <div class="col-md-6 mx-auto">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">Assign Crew</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Select Flight</label>
+                        {{ form.flight }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Select Crew Member</label>
+                        {{ form.crew }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Date Assigned</label>
+                        {{ form.assignment_date }}
+                        <div class="form-text">When was this assignment given?</div>
+                    </div>
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-success btn-lg">Save Assignment</button>
+                        <a href="{% url 'crew_assignments' %}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

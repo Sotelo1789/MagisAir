@@ -1,0 +1,29 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mt-4 mb-3">
+    <h2>📋 Crew Assignments</h2>
+    <a href="{% url 'add_assignment' %}" class="btn btn-success">+ Assign Crew to Flight</a>
+</div>
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-striped table-hover mb-0 align-middle">
+            <thead class="table-dark">
+                <tr><th>Date</th><th>Flight</th><th>Route</th><th>Crew Member</th><th>Role</th></tr>
+            </thead>
+            <tbody>
+                {% for a in assignments %}
+                <tr>
+                    <td class="fw-bold">{{ a.flight.schedule.date }}</td>
+                    <td>MA {{ a.flight.flight_no }}</td>
+                    <td>{{ a.flight.route.origin_city.city_name }} ➝ {{ a.flight.route.destination_city.city_name }}</td>
+                    <td>{{ a.crew.last_name }}, {{ a.crew.first_name }}</td>
+                    <td><span class="badge bg-secondary">{{ a.crew.role }}</span></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-center p-4">No assignments made yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

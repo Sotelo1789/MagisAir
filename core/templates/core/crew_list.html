@@ -1,0 +1,28 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mt-4 mb-3">
+    <h2>👮 Crew Directory</h2>
+    <a href="{% url 'add_crew_member' %}" class="btn btn-primary">+ Add Employee</a>
+</div>
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-striped table-hover mb-0">
+            <thead class="table-dark">
+                <tr><th>ID</th><th>Last Name</th><th>First Name</th><th>Role</th></tr>
+            </thead>
+            <tbody>
+                {% for c in crew %}
+                <tr>
+                    <td>{{ c.crew_id }}</td>
+                    <td>{{ c.last_name }}</td>
+                    <td>{{ c.first_name }}</td>
+                    <td><span class="badge bg-info text-dark">{{ c.role }}</span></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="text-center p-4">No crew members found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

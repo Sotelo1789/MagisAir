@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
-from .models import Passenger, Flight, Booking, ItineraryItem, FlightSchedule, FlightRoute, City
+from .models import Passenger, Flight, Booking, ItineraryItem, FlightSchedule, FlightRoute, City, CrewMember, CrewAssignment
 from django.utils import timezone
 import random
-from .forms import PassengerForm, FlightForm, FlightRouteForm, CityForm
+from .forms import PassengerForm, FlightForm, FlightRouteForm, CityForm, CrewMemberForm, CrewAssignmentForm 
 
 def booking_view(request):
     # 1. Handle Form Submission (POST request)
@@ -146,3 +146,41 @@ def add_city_view(request):
         form = CityForm()
 
     return render(request, 'core/add_city.html', {'form': form})
+
+
+# --- CREW MEMBERS (DIRECTORY) ---
+def crew_list_view(request):
+    crew = CrewMember.objects.all().order_by('last_name')
+    return render(request, 'core/crew_list.html', {'crew': crew})
+
+def add_crew_member_view(request):
+    if request.method == 'POST':
+        form = CrewMemberForm(request.POST)
+        if form.is_valid():
+            member = form.save(commit=False)
+            member.crew_id = random.randint(1000, 9999) # Random Employee ID
+            member.save()
+            return redirect('crew_list')
+    else:
+        form = CrewMemberForm()
+    return render(request, 'core/add_crew_member.html', {'form': form})
+
+# --- CREW ASSIGNMENTS (ROSTER) ---
+def crew_assignment_view(request):
+    # Fetch assignments with related data
+    assignments = CrewAssignment.objects.select_related('crew', 'flight', 'flight__route', 'flight__schedule').all().order_by('flight__schedule__date')
+    return render(request, 'core/crew_assignments.html', {'assignments': assignments})
+
+def add_assignment_view(request):
+    if request.method == 'POST':
+        form = CrewAssignmentForm(request.POST)
+        if form.is_valid():
+            assign = form.save(commit=False)
+            assign.crew_assignment_id = random.randint(10000, 99999)
+            # Map the form date field to the model field
+            assign.assignment_date = form.cleaned_data['assignment_date']
+            assign.save()
+            return redirect('crew_assignments')
+    else:
+        form = CrewAssignmentForm()
+    return render(request, 'core/add_assignment.html', {'form': form})

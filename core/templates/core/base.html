@@ -85,8 +85,15 @@
                     📖 Bookings
                 </a>
 
-                <!-- Crew Assignments (Placeholder) -->
-                <a href="#" class="list-group-item list-group-item-action">
+                <!-- Crew Directory Link -->
+                <a href="{% url 'crew_list' %}" 
+                   class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'crew_list' or request.resolver_match.url_name == 'add_crew_member' %}active{% endif %}">
+                    👥 Crew Members
+                </a>
+
+                <!-- Crew Assignments Link -->
+                <a href="{% url 'crew_assignments' %}" 
+                   class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'crew_assignments' or request.resolver_match.url_name == 'add_assignment' %}active{% endif %}">
                     👮 Crew Assignments
                 </a>
             </div>

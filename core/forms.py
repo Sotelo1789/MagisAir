@@ -1,5 +1,5 @@
 from django import forms
-from .models import Passenger, Flight, FlightRoute, City 
+from .models import Passenger, Flight, FlightRoute, City, CrewMember, CrewAssignment 
 
 
 class PassengerForm(forms.ModelForm):
@@ -51,4 +51,32 @@ class CityForm(forms.ModelForm):
         
         widgets = {
             'city_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Tokyo'}),
+        }
+
+
+
+class CrewMemberForm(forms.ModelForm):
+    class Meta:
+        model = CrewMember
+        fields = ['first_name', 'last_name', 'role']
+        
+        widgets = {
+            'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Amelia'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Earhart'}),
+            'role': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Pilot, First Officer'}),
+        }
+
+class CrewAssignmentForm(forms.ModelForm):
+    # Field for "When was this assignment made?"
+    assignment_date = forms.DateField(
+        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'})
+    )
+
+    class Meta:
+        model = CrewAssignment
+        fields = ['crew', 'flight']
+        
+        widgets = {
+            'crew': forms.Select(attrs={'class': 'form-select'}),
+            'flight': forms.Select(attrs={'class': 'form-select'}),
         }
