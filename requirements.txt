@@ -1,3 +1,4 @@
 Django
 python-dotenv
 Pillow
+django-browser-reload
