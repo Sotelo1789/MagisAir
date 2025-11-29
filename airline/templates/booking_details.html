@@ -1,0 +1,250 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+  <div
+    id="top-div"
+    class="page-header"
+    data-baggage="{{baggage_price}}"
+    data-insurance="{{insurance_price}}"
+    data-flights_cost="{{flights_cost}}"
+    data-selected_id="{{selected_passenger_id}}"
+    data-intial_baggage="{{initial_baggage}}"
+  >
+    <div>
+      <p class="eyebrow">Booking Flow</p>
+      <h1 class="page-title">Booking Details</h1>
+      <p class="page-subtitle">Review your itinerary and complete your booking</p>
+    </div>
+    <div class="table-buttons">
+      {% if is_edit_mode %}
+        <a href="{% url 'airline:booking_list' %}" class="btn btn-outline">← Back to Bookings</a>
+      {% else %}
+        <a href="{% url 'airline:booking_create' %}?cancel=true" class="btn btn-outline">← Back to Results</a>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if messages %}
+    <div class="mt-6">
+      {% for message in messages %}
+        <div class="card mb-4 bg-red-100 border border-solid border-red-200">
+          <div class="card__body text-red-600">
+            {{ message }}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="flex mt-6 gap-8">
+    <!-- Left Column -->
+    <div class="flex-1">
+      <!-- Trip Itinerary Card -->
+      <div class="card mb-6">
+        <div class="card__body">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="m-0">Trip Itinerary ({{ flights|length }} flight{{ flights|length|pluralize }})</h2>
+            {% if is_edit_mode %}
+            <a href="{% url 'airline:booking_details' %}?add_flight=1" class="btn btn-outline text-sm  py-2 px-4">
+              ➕ Add Another Flight
+            </a>
+            {% endif %}
+        </div>
+
+          <div class="flex flex-col gap-4">
+            {% for flight in flights %}
+              <div class="pb-4
+                  {% if not forloop.last %}
+                    border-b border-solid border-gray-200
+                  {% endif %}
+                  ">
+                <div class="flex items-center mb-3 text-sky-700 gap-2">
+                  <span class="text-xl">✈️</span>
+                  <span class="text-sm">
+                    {% if flight.flight_type == 'return' %}Return{% else %}Outbound{% endif %}:
+                    {% if flight.date %}{{ flight.date|date:"M d, Y" }}{% else %}N/A{% endif %}
+                  </span>
+                </div>
+                <div class="flex flex-col gap-2">
+                  <div class="flex justify-between items-center">
+                    <span class="text-lg font-semibold">{{ flight.flight_no_formatted|default:flight.flight_no }}</span>
+                    <span class="text-slate-500">
+                      {{ flight.origin }} → {{ flight.destination }}
+                    </span>
+                  </div>
+                  <div class="flex items-center text-slate-500 gap-4">
+                    <span>{{ flight.departure_time|time:"H:i" }} - {{ flight.arrival_time|time:"H:i" }}</span>
+                    <span>({{ flight.duration }})</span>
+                  </div>
+                  <p class="text-sm m-0">Php {{ flight.price|floatformat:2 }}</p>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Items Section -->
+      <div class="mb-6">
+        <h2 class="mb-4">Additional Items</h2>
+
+        <!-- Baggage Card -->
+        <div class="card mb-4">
+          <div class="card__body">
+            <div class="flex justify-between items-start">
+              <div class="flex items-start gap-4 flex-1;">
+                <div class="p-3 rounded-lg bg-[#E5F0F5]">
+                  <span class="opacity-50 text-2xl">🧳</span>
+                </div>
+                <div class="flex-1">
+                  <h3 class="mt-0 mb-1 mx-0">Additional Baggage Allowance</h3>
+                  <p class="text-sm text-slate-500 mt-0 mb-3 mx-0">Extra 5kg per bag</p>
+                  <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-3 p-2 rounded-lg bg-[#f8fafc]">
+                      <button
+                        type="button"
+                        onclick="updateBaggage(-1)"
+                        class="w-8 h-8 border border-[#e5e7eb] rounded cursor-pointer border-solid bg-white"
+                        >
+                        −
+                      </button>
+                      <span id="baggage-count" class="w-8 text-center">{{ initial_baggage|default:0 }}</span>
+                      <button
+                        type="button"
+                        onclick="updateBaggage(1)"
+                        class="w-8 h-8 border border-[#e5e7eb] rounded cursor-pointer border-solid bg-white"
+                      >
+                        +
+                      </button>
+                    </div>
+                    <span class="text-slate-500">Php {{ baggage_price|floatformat:2 }}/bag</span>
+                  </div>
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="text-xl font-semibold" id="baggage-total">Php 0.00</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Insurance Card -->
+        <div class="card mb-4">
+          <div class="card__body">
+            <div class="flex justify-between items-start">
+              <div class="flex items-start gap-4 flex-1">
+                <div class="p-3 rounded-lg bg-[#E7F8F2]">
+                  <span class="text-2xl opacity-50">🛡️</span>
+                </div>
+                <div class="flex-1">
+                  <h3 class="mt-0 mb-1 mx-0">Travel Insurance</h3>
+                  <p class="text-sm text-slate-500 leading-normal mt-0 mb-2 mx-0">
+                    Protect your journey with comprehensive travel insurance covering trip cancellation, medical emergencies, baggage loss, and flight delays. Peace of mind for your travels.
+                  </p>
+                  <label
+                    class="flex! items-start gap-3 cursor-pointer transition-all duration-200 p-3 rounded-lg border-2 border-solid w-lg"
+                    onmouseover="travelMouseOver(this);"
+                    onmouseout="travelMouseOut(this);"
+                  >
+                    <input type="checkbox" id="has-insurance" name="has_insurance"
+                      {% if initial_insurance %}checked{% endif %}
+                      onchange="updateTotals(this);"
+                      class="w-[18px]! h-[18px] cursor-pointer mt-0.5" />
+                    <div class="flex-1">
+                      <span class="font-medium block mb-1">Add Travel Insurance</span>
+                      <span class="text-[13px] text-slate-500">Php {{ insurance_price|floatformat:2 }} - One-time coverage for entire trip</span>
+                    </div>
+                  </label>
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="text-xl font-semibold" id="insurance-total">Php 0.00</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Passenger Selection Card -->
+      <div class="card">
+        <div class="card__body">
+          <h2 class="mb-6">Select Passenger</h2>
+          <div class="flex flex-col gap-3">
+            {% for passenger in passengers %}
+              <div
+              class="cursor-pointer transition-all duration-200 p-4 rounded-lg border-2 border-solid border-[#e5e7eb]"
+                onclick="selectPassenger('{{ passenger.passenger_id }}')"
+                id="passenger-{{ passenger.passenger_id }}"
+                onmouseover="passengerMouseOver(this);"
+                onmouseout="passengerMouseOut(this);"
+              >
+                <div class="flex items-center gap-3">
+                  <span class="text-xl text-sky-700">👤</span>
+                  <div>
+                    <p class="font-medium m-0">{{ passenger.last_name }}, {{ passenger.first_name }}</p>
+                    <p class="text-sm text-slate-500 m-0" id="passenger_id">{{ passenger.passenger_id }}</p>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column - Price Breakdown -->
+    <div class="w-96 shrink-0">
+      <div class="card sticky top-24">
+        <div class="card__body">
+          <h3 class="mb-6">Price Breakdown</h3>
+
+          <div class="flex flex-col gap-4 mb-6">
+            <div class="flex justify-between items-center">
+              <span class="text-slate-500">Flights ({{ flights|length }})</span>
+              <span>Php {{ flights_cost|floatformat:2 }}</span>
+            </div>
+            <div id="baggage-row" class="hidden justify-between items-center">
+              <span class="text-slate-500">Baggage (<span id="baggage-count-display">0</span>)</span>
+              <span id="baggage-breakdown">Php 0.00</span>
+            </div>
+            <div id="insurance-row" class="hidden justify-between items-center">
+              <span class="text-slate-500">Insurance</span>
+              <span id="insurance-breakdown">Php 0.00</span>
+            </div>
+          </div>
+
+          <div class="mb-6 pt-4 border-t border-solid">
+            <div class="flex justify-between items-center">
+              <span class="text-xl font-semibold">TOTAL</span>
+              <span class="text-2xl font-semibold text-sky-700" id="total-price">Php {{ flights_cost|floatformat:2 }}</span>
+            </div>
+          </div>
+
+          <form method="post" id="booking-form" action="{% url 'airline:booking_details' %}{% if is_edit_mode %}?booking_id={{ booking_id }}{% endif %}">
+            {% csrf_token %}
+            {% if is_edit_mode %}
+              <input type="hidden" name="update_booking" value="1" />
+            {% else %}
+              <input type="hidden" name="confirm_booking" value="1" />
+            {% endif %}
+            <input type="hidden" name="passenger_id" id="selected-passenger-id" value="{% if selected_passenger_id %}{{ selected_passenger_id }}{% endif %}" required />
+            <input type="hidden" name="baggage_count" id="baggage-count-input" value="{{ initial_baggage }}" />
+            <button type="submit" class="btn btn-primary" class="w-full text-base p-3" id="confirm-btn" {% if not is_edit_mode %}disabled{% endif %}>
+              {% if is_edit_mode %}Update Booking{% else %}Confirm Booking{% endif %} →
+            </button>
+          </form>
+
+          <div class="mt-6 p-4 rounded-lg bg-[#f8fafc]">
+            <p class="text-sm text-slate-500 text-center m-0">
+              By proceeding, you agree to our terms and conditions
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="{% static 'booking_details.js' %}"></script>
+{% endblock %}

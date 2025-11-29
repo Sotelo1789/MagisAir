@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">Network Planning</p>
+      <h1 class="page-title">Add Flight Route</h1>
+      <p class="page-subtitle">Define a new origin-destination pair including block time.</p>
+    </div>
+    <div class="table-buttons">
+      <a href="{% url 'airline:flight_routes' %}" class="btn btn-outline">Back to routes</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card__body">
+      <form method="post" class="form-grid">
+        {% csrf_token %}
+        {{ form.origin_city }}{{ form.destination_city }}
+
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger">
+            {{ form.non_field_errors }}
+          </div>
+        {% endif %}
+
+        <div class="form-group">
+          <label for="{{ form.origin_city_name.id_for_label }}">Origin City</label>
+          {{ form.origin_city_name }}
+          <p class="form-hint text-muted">Start typing to pick an existing city or add a new one.</p>
+          {% if form.origin_city_name.errors %}
+            <p class="form-error">{{ form.origin_city_name.errors|join:", " }}</p>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.destination_city_name.id_for_label }}">Destination City</label>
+          {{ form.destination_city_name }}
+          <p class="form-hint text-muted">We'll create the city automatically if it doesn't exist yet.</p>
+          {% if form.destination_city_name.errors %}
+            <p class="form-error">{{ form.destination_city_name.errors|join:", " }}</p>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.duration.id_for_label }}">Duration (minutes)</label>
+          {{ form.duration }}
+          {% if form.duration.errors %}
+            <p class="form-error">{{ form.duration.errors|join:", " }}</p>
+          {% endif %}
+        </div>
+
+        <div class="form-group flex-[0_0_100%]! flex gap-3 justify-end">
+          <a href="{% url 'airline:flight_routes' %}" class="btn btn-outline">Cancel</a>
+          <button type="submit" class="btn btn-primary">Create Route</button>
+        </div>
+      </form>
+      <datalist id="city-options">
+        {% for city in cities %}
+          <option value="{{ city.city_name }}"></option>
+        {% endfor %}
+      </datalist>
+    </div>
+  </div>
+{% endblock %}
+

@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">Crew Center</p>
+      <h1 class="page-title">New Crew Assignment</h1>
+      <p class="page-subtitle">Assign a crew member to an upcoming flight leg.</p>
+    </div>
+    <div class="table-buttons">
+      <a href="{% url 'airline:crew_assignments' %}" class="btn btn-outline">Back to roster</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card__body">
+      <form method="post" class="form-grid">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger">
+            {{ form.non_field_errors }}
+          </div>
+        {% endif %}
+
+        <div class="form-group">
+          <label for="{{ form.crew.id_for_label }}">Crew Member</label>
+          {{ form.crew }}
+          <p class="form-hint">Pick from the roster below, or add a new crew member.</p>
+          {% if form.crew.errors %}
+            <p class="form-error">{{ form.crew.errors|join:", " }}</p>
+          {% endif %}
+        </div>
+
+        <div id="create" class="form-group grow-0! shrink-0! basis-full!">
+          <div class="card__meta mb-3!">Add a new crew member</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="{{ form.new_crew_first_name.id_for_label }}">First Name</label>
+              {{ form.new_crew_first_name }}
+            </div>
+            <div class="form-group">
+              <label for="{{ form.new_crew_last_name.id_for_label }}">Last Name</label>
+              {{ form.new_crew_last_name }}
+            </div>
+            <div class="form-group">
+              <label for="{{ form.new_crew_role.id_for_label }}">Role</label>
+              {{ form.new_crew_role }}
+            </div>
+          </div>
+          <p class="form-hint">Leave these blank if you're assigning an existing crew member.</p>
+          {% if form.new_crew_first_name.errors %}
+            <p class="form-error">{{ form.new_crew_first_name.errors|join:", " }}</p>
+          {% endif %}
+          {% if form.new_crew_last_name.errors %}
+            <p class="form-error">{{ form.new_crew_last_name.errors|join:", " }}</p>
+          {% endif %}
+          {% if form.new_crew_role.errors %}
+            <p class="form-error">{{ form.new_crew_role.errors|join:", " }}</p>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.flight.id_for_label }}">Flight</label>
+          {{ form.flight }}
+          {% if form.flight.errors %}
+            <p class="form-error">{{ form.flight.errors|join:", " }}</p>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.assignment_date.id_for_label }}">Assignment Date</label>
+          {{ form.assignment_date }}
+          {% if form.assignment_date.errors %}
+            <p class="form-error">{{ form.assignment_date.errors|join:", " }}</p>
+          {% endif %}
+        </div>
+
+        <div class="form-group grow-0 shrink-0 basis-full! flex gap-3 justify-end">
+          <a href="{% url 'airline:crew_assignments' %}" class="btn btn-outline">Cancel</a>
+          <button type="submit" class="btn btn-primary">Save Assignment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <script src="{% static 'crew_assign.js' %}"></script>
+{% endblock %}
+

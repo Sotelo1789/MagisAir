@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">Operations Control</p>
+      <h1 class="page-title">Add Flight Schedule</h1>
+      <p class="page-subtitle">Set the travel date and timing for a route to publish a new departure.</p>
+    </div>
+    <div class="table-buttons">
+      <a href="{% url 'airline:flight_schedules' %}" class="btn btn-outline">Back to schedules</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card__body">
+      <form method="post" class="form-grid">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger">
+            {{ form.non_field_errors }}
+          </div>
+        {% endif %}
+
+        <div class="form-group">
+          <label for="{{ form.route.id_for_label }}">Route</label>
+          {{ form.route }}
+          <p class="form-hint">
+            Need a new city pair?
+            <a href="{% url 'airline:flight_route_create' %}">Create a route first</a>.
+          </p>
+          {% if form.route.errors %}
+            <p class="form-error">{{ form.route.errors|join:", " }}</p>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.schedule_date.id_for_label }}">Flight Date</label>
+          {{ form.schedule_date }}
+          {% if form.schedule_date.errors %}
+            <p class="form-error">{{ form.schedule_date.errors|join:", " }}</p>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.departure_time.id_for_label }}">Departure Time</label>
+          {{ form.departure_time }}
+          {% if form.departure_time.errors %}
+            <p class="form-error">{{ form.departure_time.errors|join:", " }}</p>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.arrival_time.id_for_label }}">Arrival Time</label>
+          {{ form.arrival_time }}
+          {% if form.arrival_time.errors %}
+            <p class="form-error">{{ form.arrival_time.errors|join:", " }}</p>
+          {% endif %}
+        </div>
+
+        <div class="form-group flex-[0_0_100%] flex gap-3 justify-end">
+          <a href="{% url 'airline:flight_schedules' %}" class="btn btn-outline">Cancel</a>
+          <button type="submit" class="btn btn-primary">Add Schedule</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <script src="{% static 'schedule.js' %}"></script>
+{% endblock %}
+

@@ -5,58 +5,64 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Magis Air Operations</title>
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-    <!-- Custom CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link href="{% static 'base.css' %}" rel="stylesheet">
   </head>
 
   <body>
-    <div class="d-flex" id="wrapper">
-
-      <!-- Sidebar -->
-      <div class="border-end" id="sidebar-wrapper" style="margin-left: 0;">
-        <div class="sidebar-heading">✈️ MAGIS AIR</div>
-        <div class="list-group list-group-flush">
-          <a
-            href="{% url 'airline:temp' %}" class="
-            list-group-item
-            {% if page == 'dashboard' %} active {% endif %}">📊 Dashboard</a>
-          <a
-            href="{% url 'airline:temp' %}" class="
-            list-group-item
-            {% if page == 'route' %} active {% endif %}">🗺️ Flight Routes</a>
-          <a
-          href="{% url 'airline:temp' %}" class="
-            list-group-item
-            {% if page == 'schedules' %} active {% endif %}">📅 Flight Schedules</a>
-          <a
-            href="{% url 'airline:passenger_list' %}"
-            class="
-              list-group-item
-              {% if page == 'passengers' %} active {% endif %}">👥 Passengers</a>
-          <a
-            href="{% url 'airline:booking_list' %}"
-            class="
-              list-group-item
-              {% if page == 'bookings' %} active {% endif %}">📖 Bookings</a>
-          <a
-            href="{% url 'airline:temp' %}" class="
-            list-group-item
-            {% if page == 'crew_assignements' %} active {% endif %}">👮 Crew Assignments</a>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="sidebar__header">
+          <div class="sidebar__brand">
+            <!-- <span>✈️</span>
+            MAGIS AIR -->
+            <a href="{% url 'airline:flight_routes' %}">
+              <img
+                class="w-auto"
+                src="{% static 'logo/Magis Air.png' %}"
+              />
+            </a>
+          </div>
+          <div class="sidebar__tagline text-center">Operations Portal</div>
         </div>
-      </div>
 
-      <!-- Page Content -->
-      <div id="page-content-wrapper">
-        <div class="container-fluid">
-          {% block content %}
-          {% endblock %}
+        <nav class="sidebar__nav">
+          <a href="{% url 'airline:flight_routes' %}" class="nav-link {% if page == 'routes' %}active{% endif %}">
+            <span class="icon">🗺️</span>
+            Flight Routes
+          </a>
+          <a href="{% url 'airline:flight_schedules' %}" class="nav-link {% if page == 'schedules' %}active{% endif %}">
+            <span class="icon">📅</span>
+            Flight Schedules
+          </a>
+          <a href="{% url 'airline:passenger_list' %}" class="nav-link {% if page == 'passengers' %}active{% endif %}">
+            <span class="icon">👥</span>
+            Passengers
+          </a>
+          <a href="{% url 'airline:booking_list' %}" class="nav-link {% if page == 'bookings' %}active{% endif %}">
+            <span class="icon">📖</span>
+            Bookings
+          </a>
+          <a href="{% url 'airline:crew_assignments' %}" class="nav-link {% if page == 'crew' %}active{% endif %}">
+            <span class="icon">🧑‍✈️</span>
+            <span class="text-sm">Crew Assignments</span>
+          </a>
+        </nav>
+
+        <div class="sidebar__footer">
+          <button type="button" class="nav-link">
+            <span class="icon">🔑</span>
+            Logout
+          </button>
         </div>
-      </div>
+      </aside>
 
+      <main class="main-panel">
+        <div class="main-content">
+          {% block content %}{% endblock %}
+        </div>
+      </main>
     </div>
   </body>
 </html>

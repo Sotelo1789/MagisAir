@@ -25,11 +25,8 @@ class FlightRoute(models.Model):
     origin_city = models.ForeignKey(
         City, on_delete=models.CASCADE, related_name='departures')
     destination_city = models.ForeignKey(
-        City, on_delete=models.CASCADE, related_name='arrivals')
+        City, on_delete=models. CASCADE, related_name='arrivals')
     duration = models.IntegerField(help_text="Duration in minutes")
-    schedule = models.ForeignKey(
-        FlightSchedule, on_delete=models.CASCADE, null=True, blank=True
-    )
 
     def __str__(self):
         return f"Route {self.route_id}: {self.origin_city} to {self.destination_city}"
@@ -66,6 +63,11 @@ class Booking(models.Model):
     date_booked = models.DateField()
     total_cost = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     passenger = models.ForeignKey(Passenger, on_delete=models.CASCADE)
+
+    @property
+    def booking_reference(self):
+        year = self.date_booked.year
+        return f"BK-{year}-{self.booking_id:05d}"
 
     def __str__(self):
         return f"Booking {self.booking_id} - {self.passenger}"

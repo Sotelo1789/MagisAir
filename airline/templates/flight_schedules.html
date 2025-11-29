@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">Operations Control</p>
+      <h1 class="page-title">Flight Schedules</h1>
+      <p class="page-subtitle">Filter departures by city pair and monitor upcoming flights.</p>
+    </div>
+    <div class="table-buttons">
+      <a href="{% url 'airline:flight_schedule_create' %}" class="btn btn-primary">Add Schedule</a>
+    </div>
+  </div>
+
+  <form method="get" class="card">
+    <div class="card__body form-grid">
+      <div class="form-group">
+        <label for="origin">Origin City</label>
+        <select id="origin" name="origin">
+          <option value="">All origins</option>
+          {% for city in cities %}
+            <option value="{{ city.pk }}" {% if filters.origin == city.pk|stringformat:"s" %}selected{% endif %}>
+              {{ city.city_name }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="destination">Destination City</label>
+        <select id="destination" name="destination">
+          <option value="">All destinations</option>
+          {% for city in cities %}
+            <option value="{{ city.pk }}" {% if filters.destination == city.pk|stringformat:"s" %}selected{% endif %}>
+              {{ city.city_name }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="date">Date</label>
+        <input id="date" type="date" name="date" value="{{ filters.date }}">
+      </div>
+      <div class="form-group flex-[0_0_auto]! self-end min-w-auto!">
+        <button type="submit" class="btn btn-primary">Apply Filters</button>
+      </div>
+    </div>
+  </form>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-label">Flights Displayed</div>
+      <div class="stat-value">{{ stats.total_flights }}</div>
+      <p class="card__meta">Matching current filters</p>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Upcoming (next 7 days)</div>
+      <div class="stat-value">{{ stats.upcoming }}</div>
+      <p class="card__meta">Departures on or after today</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card__body">
+      <div class="table-grid [--grid-template:0.7fr_1fr_1fr_0.8fr_0.6fr_0.6fr]">
+        <div class="table-grid__head">
+          <div>Flight No.</div>
+          <div>Origin</div>
+          <div>Destination</div>
+          <div>Date</div>
+          <div>Departure</div>
+          <div>Arrival</div>
+        </div>
+
+        {% for schedule in schedules %}
+            <div class="table-grid__row">
+            <div class="text-mono">{{ schedule.flight_no_formatted }}</div>
+            <div>{{ schedule.origin }}</div>
+            <div>{{ schedule.destination }}</div>
+            <div class="text-muted">
+              {% if schedule.date %}{{ schedule.date|date:"M d, Y" }}{% else %}—{% endif %}
+            </div>
+            <div>
+              {% if schedule.departure %}{{ schedule.departure|time:"H:i" }}{% else %}—{% endif %}
+            </div>
+            <div>
+              {% if schedule.arrival %}{{ schedule.arrival|time:"H:i" }}{% else %}—{% endif %}
+            </div>
+          </div>
+        {% empty %}
+          <div class="table-grid__row">
+            <div class="empty-state col-span-full">
+              No flights match the selected filters.
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{% endblock %}
+

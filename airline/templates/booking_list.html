@@ -1,49 +1,275 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-  <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
-    <h2>Bookings</h2>
-    <a href="{% url 'airline:booking_create' %}" class="btn btn-success">+ New Booking</a>
-  </div>
-
-  <div class="card">
-    <div class="card-body p-0">
-      <table class="table table-striped table-hover mb-0">
-        <thead class="table-dark">
-          <tr>
-            <th>ID</th>
-            <th>Passenger</th>
-            <th>Date Booked</th>
-            <th>Total Cost</th>
-            <th>Flights</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for row in bookings %}
-            <tr>
-              <td>{{ row.booking.booking_id }}</td>
-              <td>{{ row.booking.passenger.last_name }}, {{ row.booking.passenger.first_name }}</td>
-              <td>{{ row.booking.date_booked }}</td>
-              <td>Php {{ row.booking.total_cost }}</td>
-              <td>
-                {% if row.flights %}
-                  <ul class="mb-0">
-                    {% for f in row.flights %}
-                      <li>{{ f }}</li>
-                    {% endfor %}
-                  </ul>
-                {% else %}
-                  <span class="text-muted">No flights</span>
-                {% endif %}
-              </td>
-            </tr>
-          {% empty %}
-            <tr>
-              <td colspan="5" class="text-center p-3">No bookings found.</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">Revenue Desk</p>
+      <h1 class="page-title">Flight Bookings</h1>
+      <p class="page-subtitle">Manage customer bookings</p>
+    </div>
+    <div class="table-buttons">
+      <a href="{% url 'airline:booking_create' %}" class="btn btn-primary">+ New Booking</a>
     </div>
   </div>
+
+  <form method="get" class="card booking-filter-card">
+    <div class="card__body">
+      <div class="booking-filter-row">
+        <div class="booking-filter-field">
+          <label for="search" class="booking-filter-label">Search:</label>
+          <div class="booking-filter-input">
+            <span class="booking-filter-icon">🔍</span>
+            <input
+              id="search"
+              name="search"
+              value="{{ filters.search }}"
+              placeholder="Search by booking ID or passenger name..."
+            />
+          </div>
+        </div>
+        <div class="booking-filter-field booking-filter-date">
+          <label for="date" class="booking-filter-label">Date Booked:</label>
+          <div class="booking-filter-input">
+            <span class="booking-filter-icon">📅</span>
+            <input
+              id="date"
+              name="date"
+              type="date"
+              value="{{ filters.date }}"
+              placeholder="DD/MM/YYYY"
+            />
+          </div>
+        </div>
+        <div class="booking-filter-actions">
+          <button type="submit" class="btn btn-primary">Apply Filters</button>
+          <a href="{% url 'airline:booking_list' %}" class="btn btn-outline">Clear</a>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-label">Bookings Listed</div>
+      <div class="stat-value">{{ summary.count }}</div>
+      <p class="card__meta">Matching current filters</p>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total Revenue</div>
+      <div class="stat-value">Php {{ summary.revenue|floatformat:2 }}</div>
+      <p class="card__meta">Gross ticket sales</p>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Average Booking Value</div>
+      <div class="stat-value">Php {{ summary.average|floatformat:2 }}</div>
+      <p class="card__meta">Per reservation</p>
+    </div>
+  </div>
+
+  {% if bookings %}
+    <div class="booking-stack">
+      {% for row in bookings %}
+        <article class="booking-entry" id="booking-{{ row.booking.booking_id }}">
+          <div class="booking-entry__hero">
+            <div class="booking-entry__hero-left">
+              <div class="booking-entry__icon">
+                ✈️
+              </div>
+              <div>
+                <p class="booking-entry__label">Booking Reference</p>
+                <p class="booking-entry__code">{{ row.booking.booking_reference }}</p>
+              </div>
+            </div>
+            <div class="booking-entry__hero-right">
+              <p class="booking-entry__label">Total Amount</p>
+              <p class="booking-entry__amount">Php {{ row.booking.total_cost|floatformat:2 }}</p>
+            </div>
+          </div>
+
+          <div class="booking-entry__summary">
+            <div class="booking-entry__grid">
+              <div class="booking-pill">
+                <div class="booking-pill__icon booking-pill__icon--blue">👤</div>
+                <div>
+                  <p class="booking-pill__label">Passenger</p>
+                  <p class="booking-pill__value">{{ row.booking.passenger.first_name }} {{ row.booking.passenger.last_name }}</p>
+                </div>
+              </div>
+              <div class="booking-pill">
+                <div class="booking-pill__icon booking-pill__icon--green">📅</div>
+                <div>
+                  <p class="booking-pill__label">Date Booked</p>
+                  <p class="booking-pill__value">{{ row.booking.date_booked|date:"M d, Y" }}</p>
+                </div>
+              </div>
+              <div class="booking-pill">
+                <div class="booking-pill__icon booking-pill__icon--purple">🧭</div>
+                <div>
+                  <p class="booking-pill__label">Flights</p>
+                  <p class="booking-pill__value">{{ row.itinerary|length }} {{ row.itinerary|length|pluralize:"Flight,Flights" }}</p>
+                </div>
+              </div>
+            </div>
+
+            {% if row.itinerary %}
+              <div class="booking-route-preview">
+                <span class="booking-route-preview__icon">✈️</span>
+                <span class="booking-route-preview__label">Route:</span>
+                <span class="booking-route-preview__path">
+                  {% for leg in row.itinerary %}
+                    {{ leg.origin }}
+                    {% if forloop.last %}
+                      → {{ leg.destination }}
+                    {% else %}
+                      →
+                    {% endif %}
+                  {% endfor %}
+                </span>
+              </div>
+            {% endif %}
+
+            <div class="booking-entry__actions">
+              <button
+                type="button"
+                class="btn btn-outline booking-toggle"
+                data-booking-toggle="{{ row.booking.booking_id }}"
+              >
+                <span class="booking-toggle__icon">⌄</span>
+                <span class="booking-toggle__label">View Full Details</span>
+              </button>
+              <a href="{% url 'airline:booking_edit' row.booking.booking_id %}" class="btn btn-outline booking-edit-btn text-center">Edit</a>
+            </div>
+          </div>
+
+          <div class="booking-entry__details" data-booking-details="{{ row.booking.booking_id }}" hidden>
+            <div class="booking-details-grid">
+              <section class="booking-detail-card">
+                <header class="booking-detail-card__header">
+                  <span class="booking-detail-card__icon">👤</span>
+                  <h3>Passenger Information</h3>
+                </header>
+                <div class="booking-detail-card__content grid-three">
+                  <div>
+                    <p class="label">Full Name</p>
+                    <p>{{ row.booking.passenger.first_name }} {{ row.booking.passenger.last_name }}</p>
+                  </div>
+                  <div>
+                    <p class="label">Date of Birth</p>
+                    <p>{{ row.booking.passenger.birthdate|date:"M d, Y" }}</p>
+                  </div>
+                  <div>
+                    <p class="label">Gender</p>
+                    <p>{{ row.booking.passenger.get_gender_display }}</p>
+                  </div>
+                </div>
+              </section>
+
+              <section class="booking-detail-card">
+                <header class="booking-detail-card__header">
+                  <span class="booking-detail-card__icon">🗺️</span>
+                  <h3>Trip Itinerary</h3>
+                  <span class="booking-detail-card__badge">{{ row.itinerary|length }} {{ row.itinerary|length|pluralize:"Flight,Flights" }}</span>
+                </header>
+
+                {% if row.itinerary %}
+                  <div class="booking-itinerary-list">
+                    {% for leg in row.itinerary %}
+                      <article class="booking-itinerary-leg">
+                        <div class="booking-itinerary-leg__icon">✈️</div>
+                        <div class="booking-itinerary-leg__body">
+                          <div class="booking-itinerary-leg__headline">
+                            <span class="text-mono">{{ leg.flight_no_formatted|default:leg.flight_no|default:'—' }}</span>
+                            <span class="booking-itinerary-leg__price">
+                              {% if leg.cost %}Php {{ leg.cost|floatformat:2 }}{% else %}—{% endif %}
+                            </span>
+                          </div>
+                          <div class="booking-itinerary-leg__route">
+                            <span>{{ leg.origin }}</span>
+                            <div class="booking-itinerary-leg__divider"></div>
+                            <span>{{ leg.destination }}</span>
+                          </div>
+                          <ul class="booking-itinerary-leg__meta">
+                            <li>📅 {% if leg.date %}{{ leg.date|date:"M d, Y" }}{% else %}—{% endif %}</li>
+                            <li>⏱ {% if leg.departure %}{{ leg.departure|time:"H:i" }} - {{ leg.arrival|time:"H:i" }}{% else %}—{% endif %}</li>
+                            <li>🕒 Duration: {{ leg.duration }}</li>
+                          </ul>
+                        </div>
+                      </article>
+                    {% endfor %}
+                  </div>
+                {% else %}
+                  <div class="empty-state">No itinerary items recorded for this booking.</div>
+                {% endif %}
+              </section>
+
+              {% if row.additional_items %}
+                <section class="booking-detail-card">
+                  <header class="booking-detail-card__header">
+                    <span class="booking-detail-card__icon">📦</span>
+                    <h3>Additional Items</h3>
+                  </header>
+                  <div class="booking-additional-list">
+                    {% for item in row.additional_items %}
+                      <div class="booking-additional-card">
+                        <div>
+                          <p class="booking-additional-card__title">{{ item.description }}</p>
+                          <p class="label">Quantity: {{ item.quantity }}</p>
+                        </div>
+                        <div class="booking-additional-card__price">Php {{ item.subtotal|floatformat:2 }}</div>
+                      </div>
+                    {% endfor %}
+                  </div>
+                </section>
+              {% endif %}
+
+              <section class="booking-detail-card booking-detail-card--gradient">
+                <header class="booking-detail-card__header">
+                  <span class="booking-detail-card__icon">💳</span>
+                  <h3>Price Breakdown</h3>
+                </header>
+                <div class="booking-price-breakdown">
+                  <div>
+                    <span class="label">Flight Costs</span>
+                    <span>Php {{ row.price_summary.flights|floatformat:2 }}</span>
+                  </div>
+                  {% if row.additional_items %}
+                    <div>
+                      <span class="label">Additional Services</span>
+                      <span>Php {{ row.price_summary.additional|floatformat:2 }}</span>
+                    </div>
+                  {% endif %}
+                  <hr />
+                  <div class="booking-price-breakdown__total">
+                    <span>Total Amount</span>
+                    <span>Php {{ row.price_summary.total|floatformat:2 }}</span>
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            <div class="booking-entry__footer">
+              <button type="button" class="btn btn-outline booking-toggle booking-toggle--secondary" data-booking-toggle="{{ row.booking.booking_id }}">
+                Hide Details
+              </button>
+              <form method="post" action="{% url 'airline:booking_delete' row.booking.booking_id %}" class="inline" onsubmit="return confirm('Are you sure you want to delete this booking? This action cannot be undone.');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline booking-cancel-btn bg-red-50! border-red-200 text-red-600">
+                  Delete Booking
+                </button>
+              </form>
+            </div>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="card">
+      <div class="card__body">
+        <div class="empty-state">No bookings found for the current filters.</div>
+      </div>
+    </div>
+  {% endif %}
+
+  <script src="{% static 'booking_list.js' %}"></script>
 {% endblock %}

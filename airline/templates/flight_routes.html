@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">Network Planning</p>
+      <h1 class="page-title">Flight Routes</h1>
+      <p class="page-subtitle">Visualize every city pair currently served by Magis Air.</p>
+    </div>
+    <div class="table-buttons">
+      <a href="{% url 'airline:flight_route_create' %}" class="btn btn-primary">Add Route</a>
+    </div>
+  </div>
+
+  <form method="get" class="card">
+    <div class="card__body form-grid">
+      <div class="form-group">
+        <label for="route-search">Search by city or route</label>
+        <input
+          class="routes-input"
+          id="route-search"
+          name="search"
+          value="{{ filters.search }}"
+          placeholder="Manila, Singapore, R001..."
+        />
+      </div>
+      <div class="form-group flex-[0_0_auto]! self-end min-w-auto!">
+        <button type="submit" class="btn btn-primary">Apply Filters</button>
+      </div>
+    </div>
+  </form>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-label">Active Routes</div>
+      <div class="stat-value">{{ stats.total_routes }}</div>
+      <p class="card__meta">Total configured city pairs</p>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Visible Routes</div>
+      <div class="stat-value">{{ stats.visible_routes }}</div>
+      <p class="card__meta">Matching current filter</p>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Average Duration</div>
+      <div class="stat-value">{{ stats.avg_duration }}</div>
+      <p class="card__meta">Across the entire network</p>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Busiest Origin</div>
+      <div class="stat-value text-xl">{{ stats.busiest_origin }}</div>
+      <p class="card__meta">City with the most outbound routes</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card__body">
+      <div class="table-grid [--grid-template:0.5fr_1fr_1fr_0.5fr_0.5fr]">
+        <div class="table-grid__head">
+          <div>Route ID</div>
+          <div>Origin</div>
+          <div>Destination</div>
+          <div>Duration</div>
+          <div>Flights</div>
+        </div>
+
+        {% for route in routes %}
+          <div class="table-grid__row">
+            <div class="text-mono">{{ route.id_formatted }}</div>
+            <div>{{ route.origin }}</div>
+            <div>{{ route.destination }}</div>
+            <div class="text-muted">{{ route.duration }}</div>
+            <div>
+              <span class="pill pill--brand">{{ route.flight_total }} flights</span>
+            </div>
+          </div>
+        {% empty %}
+          <div class="table-grid__row">
+            <div class="empty-state col-span-full">
+              No routes found for this search.
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{% endblock %}
+

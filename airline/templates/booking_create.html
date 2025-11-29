@@ -2,74 +2,229 @@
 {% load static %}
 
 {% block content %}
-<div class="row mt-4">
-  <div class="col-md-8 mx-auto">
-    <div class="card">
-      <div class="card-header bg-white">
-        <h3 class="mt-2">Create New Booking</h3>
-        <p class="text-muted mb-0">Select a passenger and flight to generate a ticket.</p>
-      </div>
-      <div class="card-body p-4">
-
-        <form method="POST">
-          {% csrf_token %}
-
-          <!-- Passenger Selection -->
-          <div class="mb-4">
-            <label class="form-label fw-bold">Select Passenger</label>
-            <select name="passenger_id" class="form-select form-select-lg" required id="passenger">
-              <option value="" disabled selected>-- Choose a Passenger --</option>
-              {% for p in passengers %}
-              <option value="{{ p.passenger_id }}">{{ p.last_name }}, {{ p.first_name }} {% if user.is_superuser %} (ID: {{ p.passenger_id }}) {% endif %}
-              </option>
-              {% endfor %}
-            </select>
-            <div class="form-text">
-              Don't see the passenger?
-              <a href="/admin/airline/passenger/add/" target="_blank">Add a new passenger here.</a>
-            </div>
-          </div>
-
-          <!-- Flight Selection -->
-          <div class="mb-4">
-            <label class="form-label fw-bold">Select Flight</label>
-            <select name="flight_id" class="form-select form-select-lg" required id="flight">
-              <option value="" disabled selected>-- Choose a Flight --</option>
-              {% for f in flights %}
-              <option value="{{ f.flight_no }}">
-                {{ f.route.origin_city }} ➝ {{ f.route.destination_city }}
-                | {{ f.schedule.date }} @ {{ f.departure_time }}
-                | Php {{ f.price }} <!-- link to itinerary item -->
-              </option>
-              {% endfor %}
-            </select>
-          </div>
-
-          <!-- Price Input -->
-          <div class="mb-4">
-            <label class="form-label fw-bold">Ticket Price ($)</label>
-            <div class="input-group">
-              <span class="input-group-text">Php</span>
-              <input name="price" class="form-control form-control-lg" placeholder="0.00" step="0.01"
-                required readonly id="price">
-            </div>
-
-            <div class="form-text">
-              Would you like to pre-order flight consumables?
-              <a href="/admin/airline/bookingitem/add/" target="_blank">Request an item here.</a>
-            </div>
-          </div>
-
-          <!-- Submit Button -->
-          <div class="d-grid gap-2">
-            <button type="submit" class="btn btn-primary btn-lg">Confirm Booking</button>
-          </div>
-        </form>
-
-      </div>
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">Booking Flow</p>
+      <h1 class="page-title">Create New Booking</h1>
+      <p class="page-subtitle">Search flights by route and travel dates, then confirm directly from the dashboard.</p>
+    </div>
+    <div class="table-buttons">
+      <a href="{% url 'airline:booking_list' %}?cancel=true" class="btn btn-outline">Back to list</a>
     </div>
   </div>
-</div>
 
-<script src="{% static 'price.js' %}"></script>
+  <div class="card">
+    <div class="card__body">
+      <form method="get" class="booking-builder" id="booking-search-form">
+        <div class="booking-trip-toggle">
+          <label class="booking-toggle toggle-chip {% if filters.trip_type == 'one_way' %}active{% endif %}">
+            <input type="radio" name="trip_type" value="one_way" {% if filters.trip_type != 'round_trip' %}checked{% endif %} />
+            <span>One Way</span>
+          </label>
+          <label class="booking-toggle toggle-chip {% if filters.trip_type == 'round_trip' %}active{% endif %}">
+            <input type="radio" name="trip_type" value="round_trip" {% if filters.trip_type == 'round_trip' %}checked{% endif %} />
+            <span>Round Trip</span>
+          </label>
+        </div>
+
+        <div class="booking-field-grid">
+          <div class="booking-field">
+            <label for="origin">Origin City</label>
+            <div class="booking-input">
+              <span class="booking-input__icon" aria-hidden="true">📍</span>
+              <select id="origin" name="origin">
+                <option value="">Select origin</option>
+                {% for city in cities %}
+                  <option value="{{ city.city_id }}" {% if filters.origin|stringformat:"s" == city.city_id|stringformat:"s" %}selected{% endif %}>
+                    {{ city.city_name }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div class="booking-field">
+            <label for="destination">Destination City</label>
+            <div class="booking-input">
+              <span class="booking-input__icon" aria-hidden="true">📍</span>
+              <select id="destination" name="destination">
+                <option value="">Select destination</option>
+                {% for city in cities %}
+                  <option value="{{ city.city_id }}" {% if filters.destination|stringformat:"s" == city.city_id|stringformat:"s" %}selected{% endif %}>
+                    {{ city.city_name }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div class="booking-field">
+            <label for="departure_date">Departure Date</label>
+            <div class="booking-input">
+              <span class="booking-input__icon" aria-hidden="true">📅</span>
+              <input
+                type="date"
+                id="departure_date"
+                name="departure_date"
+                value="{{ filters.departure_date }}"
+              />
+            </div>
+          </div>
+
+          <div class="booking-field {% if filters.trip_type != 'round_trip' %}is-hidden{% endif %}" id="return-field">
+            <label for="return_date">Return Date</label>
+            <div class="booking-input">
+              <span class="booking-input__icon" aria-hidden="true">📅</span>
+              <input
+                type="date"
+                id="return_date"
+                name="return_date"
+                value="{{ filters.return_date }}"
+                {% if filters.trip_type != 'round_trip' %}disabled{% endif %}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="booking-actions">
+          <a href="{% url 'airline:booking_list' %}" class="btn btn-outline text-center">Cancel</a>
+          <button type="submit" class="btn btn-primary">Search Flights</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {% if search_performed %}
+    <div class="card mt-6">
+      <div class="card__body">
+        <h2 class="card__title">Available Flights</h2>
+        <p class="card__meta">Select a flight below to complete the booking.</p>
+
+        {% if outbound_results %}
+          <h3 class="card__title size text-base! mt-6!">Departing Flights</h3>
+          <div class="space-y-3">
+            {% for flight in outbound_results %}
+              <div class="booking-card">
+                <div class="booking-card__header">
+                  <div class="flight-id-route">
+                    <span class="flight-id">{{ flight.id_formatted }}</span>
+                    <span class="dot">·</span>
+                    <span class="route">{{ flight.origin }} → {{ flight.destination }}</span>
+                  </div>
+
+                  <div class="price">
+                    <div class="text-mono">Php {{ flight.price|floatformat:2 }}</div>
+                  </div>
+                </div>
+
+                <div class="booking-card__body">
+                  <div class="booking-body-inner">
+                    <div class="times-row">
+                      <div class="time-group">
+                        <div class="time">{{ flight.departure|time:"H:i" }}</div>
+                        <div class="city">{{ flight.origin }}</div>
+                      </div>
+
+                      <div class="flight-sep">
+                        <div class="line" aria-hidden="true"></div>
+                        <div class="duration">{{ flight.duration }}</div>
+                      </div>
+
+                      <div class="time-group">
+                        <div class="time">{{ flight.arrival|time:"H:i" }}</div>
+                        <div class="city">{{ flight.destination }}</div>
+                      </div>
+                    </div>
+
+                    <form method="post" class="booking-selection-form">
+                      {% csrf_token %}
+                      <input type="hidden" name="select_flight" value="1" />
+                      <input type="hidden" name="flight_id" value="{{ flight.id }}" />
+                      <input type="hidden" name="flight_type" value="outbound" />
+                      <input type="hidden" name="trip_type" value="{{ filters.trip_type }}" />
+                      <input type="hidden" name="origin" value="{{ filters.origin }}" />
+                      <input type="hidden" name="destination" value="{{ filters.destination }}" />
+                      <input type="hidden" name="departure_date" value="{{ filters.departure_date }}" />
+                      <input type="hidden" name="return_date" value="{{ filters.return_date }}" />
+                      <input type="hidden" name="passengers" value="{{ filters.passengers }}" />
+                      <div class="select-wrap">
+                        <button type="submit" class="btn btn-primary">Select Flight</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="empty-state">No departing flights match your search.</div>
+        {% endif %}
+
+        {% if filters.trip_type == 'round_trip' %}
+          <hr class="mt-8 mb-8 ml-0 mr-0"/>
+          <h3 class="card__title text-base!">Return Flights</h3>
+          {% if return_results %}
+            <div class="space-y-3">
+              {% for flight in return_results %}
+                <div class="booking-card">
+                <div class="booking-card__header">
+                  <div class="flight-id-route">
+                    <span class="flight-id">{{ flight.id_formatted }}</span>
+                    <span class="dot">·</span>
+                    <span class="route">{{ flight.origin }} → {{ flight.destination }}</span>
+                  </div>
+
+                  <div class="price">
+                    <div class="text-mono">Php {{ flight.price|floatformat:2 }}</div>
+                  </div>
+                </div>
+
+                <div class="booking-card__body">
+                  <div class="booking-body-inner">
+                    <div class="times-row">
+                      <div class="time-group">
+                        <div class="time">{{ flight.departure|time:"H:i" }}</div>
+                        <div class="city">{{ flight.origin }}</div>
+                      </div>
+
+                      <div class="flight-sep">
+                        <div class="line" aria-hidden="true"></div>
+                        <div class="duration">{{ flight.duration }}</div>
+                      </div>
+
+                      <div class="time-group">
+                        <div class="time">{{ flight.arrival|time:"H:i" }}</div>
+                        <div class="city">{{ flight.destination }}</div>
+                      </div>
+                    </div>
+
+                    <form method="post" class="booking-selection-form">
+                      {% csrf_token %}
+                      <input type="hidden" name="select_flight" value="1" />
+                      <input type="hidden" name="flight_id" value="{{ flight.id }}" />
+                      <input type="hidden" name="flight_type" value="outbound" />
+                      <input type="hidden" name="trip_type" value="{{ filters.trip_type }}" />
+                      <input type="hidden" name="origin" value="{{ filters.origin }}" />
+                      <input type="hidden" name="destination" value="{{ filters.destination }}" />
+                      <input type="hidden" name="departure_date" value="{{ filters.departure_date }}" />
+                      <input type="hidden" name="return_date" value="{{ filters.return_date }}" />
+                      <input type="hidden" name="passengers" value="{{ filters.passengers }}" />
+                      <div class="select-wrap">
+                        <button type="submit" class="btn btn-primary">Select Flight</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="empty-state">No return flights match your search.</div>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+
+  <script src="{% static 'booking_create.js' %}"></script>
 {% endblock %}

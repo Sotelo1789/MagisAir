@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">Customer Care</p>
+      <h1 class="page-title">Add Passenger</h1>
+      <p class="page-subtitle">Create a new passenger profile without leaving the dashboard.</p>
+    </div>
+    <div class="table-buttons">
+      <a href="{% url 'airline:passenger_list' %}" class="btn btn-outline">Back to directory</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card__body">
+      <form method="post" class="form-grid gap-5 w-full">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger">
+            {{ form.non_field_errors }}
+          </div>
+        {% endif %}
+
+        <div class="form-group">
+          <label for="{{ form.first_name.id_for_label }}">First name</label>
+          <input
+            id="{{ form.first_name.id_for_label }}"
+            name="{{ form.first_name.html_name }}"
+            value="{{ form.first_name.value|default_if_none:'' }}"
+            placeholder="First name"
+          />
+          {% if form.first_name.errors %}
+            <p class="form-error">{{ form.first_name.errors|join:", " }}</p>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.last_name.id_for_label }}">Last name</label>
+          <input
+            id="{{ form.last_name.id_for_label }}"
+            name="{{ form.last_name.html_name }}"
+            value="{{ form.last_name.value|default_if_none:'' }}"
+            placeholder="Last name"
+          />
+          {% if form.last_name.errors %}
+            <p class="form-error">{{ form.last_name.errors|join:", " }}</p>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.birthdate.id_for_label }}">Birthdate</label>
+          <input
+            type="date"
+            id="{{ form.birthdate.id_for_label }}"
+            name="{{ form.birthdate.html_name }}"
+            value="{{ form.birthdate.value|default_if_none:'' }}"
+          />
+          {% if form.birthdate.errors %}
+            <p class="form-error">{{ form.birthdate.errors|join:", " }}</p>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.gender.id_for_label }}">Gender</label>
+          <select id="{{ form.gender.id_for_label }}" name="{{ form.gender.html_name }}">
+            {% for value, label in form.fields.gender.choices %}
+              <option value="{{ value }}" {% if form.gender.value == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+          {% if form.gender.errors %}
+            <p class="form-error">{{ form.gender.errors|join:", " }}</p>
+          {% endif %}
+        </div>
+
+        <div class="flex-[0_0_100%] flex gap-3 justify-end">
+          <button type="submit" class="btn btn-primary">Create Passenger</button>
+          <a href="{% url 'airline:passenger_list' %}" class="btn btn-outline">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}
+

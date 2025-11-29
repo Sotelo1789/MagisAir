@@ -1,20 +1,26 @@
 {% extends 'base.html' %}
-{% block content %}
-  <div class="row mt-4">
-    <div class="col-md-6 mx-auto">
-      <div class="card text-center">
-        <div class="card-body p-4">
-          <div class="mb-3">
-            <h1 class="display-6">✅ Booking Confirmed!</h1>
-          </div>
-          <p class="text-muted">Your booking was saved successfully to the database.</p>
 
-          <div class="d-flex justify-content-center gap-2 mt-4">
-            <a href="{% url 'airline:booking_view' %}" class="btn btn-primary btn-lg">+ Book Another</a>
-            <a href="{% url 'airline:booking_list' %}" class="btn btn-outline-secondary btn-lg">Back to Bookings</a>
-          </div>
-        </div>
+{% block content %}
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">Booking Flow</p>
+      <h1 class="page-title">Booking Confirmed</h1>
+      <p class="page-subtitle">Your reservation was saved successfully.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card__body text-center px-8 py-12">
+      <div class="text-5xl mb-4">✅</div>
+      <h2 class="card__title text-[28px]! mb-2!">Success!</h2>
+      <p class="card__meta text-base!">
+        The booking details have been stored. You can return to the list or start another booking.
+      </p>
+
+      <div class="flex flex-wrap justify-center gap-3 mt-8">
+        <a href="{% url 'airline:booking_create' %}" class="btn btn-primary min-w-[200px]!">+ Book Another</a>
+        <a href="{% url 'airline:booking_list' %}" class="btn btn-outline min-w-[200px]!">Back to Bookings</a>
       </div>
     </div>
   </div>
-{% endblock content %}
+{% endblock %}

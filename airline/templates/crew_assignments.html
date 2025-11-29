@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">Crew Center</p>
+      <h1 class="page-title">Crew Assignments</h1>
+      <p class="page-subtitle">Track who is flying which leg and on what date.</p>
+    </div>
+    <div class="table-buttons">
+      <a href="{% url 'airline:crew_assignment_create' %}" class="btn btn-primary">New Assignment</a>
+    </div>
+  </div>
+
+  <form method="get" class="card">
+    <div class="card__body form-grid">
+      <div class="form-group">
+        <label for="crew-search">Search</label>
+        <input
+          id="crew-search"
+          name="search"
+          value="{{ filters.search }}"
+          class="rounded-l-2xl"
+          placeholder="Search by crew member or flight..."
+        />
+      </div>
+      <div class="form-group">
+        <label for="role">Role</label>
+        <select id="role" name="role">
+          <option value="">All roles</option>
+          {% for crew_role in roles %}
+            <option value="{{ crew_role }}" {% if filters.role|lower == crew_role|lower %}selected{% endif %}>
+              {{ crew_role }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="assign-date">Assignment Date</label>
+        <input class="rounded-r-2xl" id="assign-date" type="date" name="date" value="{{ filters.date }}">
+      </div>
+      <div class="form-group flex-[0_0_auto]! self-end flex gap-3">
+        <button type="submit" class="btn btn-primary">Apply Filters</button>
+        <a href="{% url 'airline:crew_assignments' %}" class="btn btn-outline">Clear</a>
+      </div>
+    </div>
+  </form>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-label">Assignments</div>
+      <div class="stat-value">{{ summary.total }}</div>
+      <p class="card__meta">Records visible</p>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Unique Crew</div>
+      <div class="stat-value">{{ summary.unique_crew }}</div>
+      <p class="card__meta">Crew roster represented</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card__body">
+      <div class="table-grid [--grid-template:1fr_0.7fr_0.8fr_0.8fr_0.7fr_0.6fr]">
+        <div class="table-grid__head">
+          <div>Crew Member</div>
+          <div>Role</div>
+          <div>Flight No.</div>
+          <div>Route</div>
+          <div>Date</div>
+          <div>Schedule</div>
+        </div>
+
+        {% for assignment in assignments %}
+          <div class="table-grid__row">
+            <div>
+              <div class="font-semibold">{{ assignment.crew_name }}</div>
+            </div>
+            <div>
+              <span class="pill pill--brand">{{ assignment.role }}</span>
+            </div>
+            <div class="text-mono">{{ assignment.flight_no_formatted }}</div>
+            <div>
+              {{ assignment.origin }} → {{ assignment.destination }}
+            </div>
+            <div class="text-muted">{{ assignment.date|date:"M d, Y" }}</div>
+            <div class="text-small text-muted">
+              {% if assignment.departure %}{{ assignment.departure|time:"H:i" }}{% else %}—{% endif %}
+              -
+              {% if assignment.arrival %}{{ assignment.arrival|time:"H:i" }}{% else %}—{% endif %}
+            </div>
+          </div>
+        {% empty %}
+          <div class="table-grid__row">
+            <div class="empty-state col-span-full">
+              No crew assignments match the current filters.
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
